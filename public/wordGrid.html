@@ -1,0 +1,245 @@
+<!doctype html>
+
+<html>
+<head>
+	<!-- META -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="mobile-web-app-capable" content="yes">
+
+	<title>Słowostrzały</title>
+
+	<link href="https://fonts.googleapis.com/css?family=Overpass" rel="stylesheet">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+	<style>
+		body, html{
+			margin:0;
+			padding:0;
+			height: 100%;
+			background-color: #CCCCCC;
+		}
+
+		.card {
+			border-radius: 5px;
+			margin: 0.2%;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			background-color:#fce5c5;
+			left: 0;
+			top: 10%;
+			float: left;
+			font-family: "Overpass";
+			color:#2a2a2a;
+			overflow: hidden;
+			font-size: 2.4vw;
+			text-align: center;
+			vertical-align:middle;	    
+		}
+		td {
+			font-family: "Overpass";
+			display: table-cell;
+			text-align: center;
+			vertical-align:middle;
+		}
+		.container {
+			margin:0px;
+			padding:0px;
+			width:100%;
+		}
+		.scoreDiv {
+			font-family: "Overpass";
+			margin:0px;
+			padding:0px;
+			width:100%;
+			height:10%;
+		}
+		.row {
+			width:100%;
+			height:100%;
+			margin: 0px;
+		}
+		.wrapper{
+			position: absolute;
+		}
+	</style>
+
+	<script>  
+		showSetting=false;
+		$( document ).ready(function() {
+			setSize()
+			window.onresize = function(event){
+				setSize();
+			}
+
+			$( ".card" ).click(function() {
+				if(clicked.indexOf(parseInt($( this ).attr('id')))<=-1){
+					socket.emit('messages', {clicked: parseInt($( this ).attr('id'))});
+				}
+
+			});
+
+			$( "#refresh" ).click(function() {
+				socket.emit('messages', {refresh: true});			  	
+			});
+			$( "#show" ).click(function() {
+				showSetting=!showSetting;
+				if(showSetting){
+					$(this).text('hide');
+				}
+				else{
+					$(this).text('show');
+				}	
+				show();			  	
+			});
+
+		});
+
+		setSize = function(){
+			var w = window.innerWidth;
+			var h = window.innerHeight;
+			var size = w<h?w:h;
+			$('.card').css('width', '19.6%');	
+			$('.card').css('height', size/6);
+			$('.wrapper').css('width', w);
+			$('.wrapper').css('height', '90%');
+			$('.scoreDiv').css('font-size', size/12);
+		}
+	</script>
+
+
+
+
+</head>
+<!-- SET THE CONTROLLER AND GET ALL TODOS -->
+<body>
+	<div class ='scoreDiv'>
+		<div class='row'>
+			<div class='col-xs-4'>
+				<span class="label label-success" id='green' style='display: table;margin: 0 auto;'>10</span>
+			</div>
+			<div class='col-xs-4' style='display: flex;justify-content: center;align-items: center;'>
+				<button type="button" class="btn btn-primary btn-md" id='refresh'>refresh</button>
+				<button type="button" class="btn btn-primary btn-md" id='show'>show</button>
+			</div>
+			<div class='col-xs-4'>
+				<span class="label label-primary" id='blue' style='display: table;margin: 0 auto;'>10</span>
+			</div>
+		</div>
+	</div>
+	<div class = 'wrapper'>
+		<div class='card' id='0'></div>
+		<div class='card' id='1'></div>
+		<div class='card' id='2'></div>
+		<div class='card' id='3'></div>
+		<div class='card' id='4'></div>
+
+		<div class='card' id='5'></div>
+		<div class='card' id='6'></div>
+		<div class='card' id='7'></div>
+		<div class='card' id='8'></div>
+		<div class='card' id='9'></div>
+
+		<div class='card' id='10'></div>
+		<div class='card' id='11'></div>
+		<div class='card' id='12'></div>
+		<div class='card' id='13'></div>
+		<div class='card' id='14'></div>
+
+		<div class='card' id='15'></div>
+		<div class='card' id='16'></div>
+		<div class='card' id='17'></div>
+		<div class='card' id='18'></div>
+		<div class='card' id='19'></div>
+
+		<div class='card' id='20'></div>
+		<div class='card' id='21'></div>
+		<div class='card' id='22'></div>
+		<div class='card' id='23'></div>
+		<div class='card' id='24'></div>
+	</div>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>  
+		var clicked=[];
+		var setting=[];
+		var href = window.location.href
+		var password = prompt("Please enter password:", "pass");
+		let roomInfo = {roomInfo: href.substr(this.href.lastIndexOf('/') + 1), pass: password}
+
+		var socket = io.connect();
+		socket.on('connect', function(data) {
+			socket.emit('join', roomInfo);
+		});
+
+		socket.on('messages', function(data) {
+			if(data.hasOwnProperty('boardInfo')){
+				clicked=data.boardInfo.clicked;
+				for (var i=0; i<data.boardInfo.words.length; i++) {
+					$('#'+i).text(data.boardInfo.words[i]);
+				}
+				for (var i=0; i<25; i++) {
+					setting[i]=0;
+				}
+				for (var i=0; i<9; i++) {
+					setting[data.boardInfo.setting[i]]=1;
+				}
+				for (var i=9; i<17; i++) {
+					setting[data.boardInfo.setting[i]]=2;
+				}
+				setting[data.boardInfo.setting[17]]=3;
+				show();
+				countPoints();
+
+			}
+			if(data.hasOwnProperty('error')){
+				alert(data.error);
+			}
+
+		});
+
+		countPoints = function(){
+			greenTeamPoints = 9;
+			blueTeamPoints = 8;
+			for(i=0;i<clicked.length;i++){
+				if(setting[clicked[i]]===1){
+					greenTeamPoints--;
+				}
+				if(setting[clicked[i]]===2){
+					blueTeamPoints--;
+				}
+			}
+			$('#green').text(greenTeamPoints);
+			$('#blue').text(blueTeamPoints);
+		};
+
+		show = function(){
+			for(var i=0;i<25;i++){
+				$('#'+i).css('background-color','#fce5c5');
+				if(clicked.indexOf(i)>-1 || showSetting){
+					if(clicked.indexOf(i)>-1 && showSetting){
+						$('#'+i).css('background-color','#333333');
+					}
+					else if(setting[i]===0){
+						$('#'+i).css('background-color','#b7b7b7');
+					}
+					else if(setting[i]===1){
+						$('#'+i).css('background-color','#80d580');
+					}
+					else if(setting[i]===2){
+						$('#'+i).css('background-color','#7bbbe0');
+					}
+					else if(setting[i]===3){
+						$('#'+i).css('background-color','#dc7777');
+					}
+				}
+			}
+		};
+
+	</script>
+
+</body>
+</html>
